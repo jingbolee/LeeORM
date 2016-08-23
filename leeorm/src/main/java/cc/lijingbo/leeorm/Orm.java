@@ -2,6 +2,7 @@ package cc.lijingbo.leeorm;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.socks.library.KLog;
@@ -52,6 +53,7 @@ public class Orm {
         if (dbVersion >= 1) {
             this.dbVersion = dbVersion;
         }
+        helper = new ORMSQLiteOpenHelper(this.context, this.dbName, null, this.dbVersion);
     }
 
     private String createTable(Object object) {
@@ -80,22 +82,25 @@ public class Orm {
         return sb.toString();
     }
 
-    public void save(Object object) {
+    public long save(Object object) {
         if (!isCreateTable) {
             String sql = createTable(object);
             if (sql != null) {
-                helper = new ORMSQLiteOpenHelper(this.context, this.dbName, null, this.dbVersion,
-                        sql);
-                database = helper.getReadableDatabase();
+                helper.setSql(sql);
+                if (database == null) {
+                    database = helper.getReadableDatabase();
+                }
             }
         }
-        database = helper.getReadableDatabase();
+        if (database == null) {
+            database = helper.getReadableDatabase();
+        }
         Class c = object.getClass();
         ContentValues values = new ContentValues();
         StringBuffer sb = new StringBuffer();
         boolean isExit = c.isAnnotationPresent(Table.class);
         if (!isExit) {
-            return;
+            return 0;
         }
         Table table = (Table) c.getAnnotation(Table.class);
         String tableName = table.value().toUpperCase();
@@ -135,17 +140,55 @@ public class Orm {
                 values.put(columnName, (Boolean) fieldValue);
             }
         }
-        database.insert(tableName, null, values);
-
-
+        return database.insert(tableName, null, values);
     }
 
-    public void delete(Object object) {
+    public Cursor queryAll(Class c) {
+        boolean isExit = c.isAnnotationPresent(Table.class);
+        if (!isExit) {
+            return null;
+        }
+        Table table = (Table) c.getAnnotation(Table.class);
+        String tableName = table.value().toUpperCase();
+        if (database == null) {
+            database = helper.getReadableDatabase();
+        }
+        return database.query(tableName, null, null, null, null, null, null);
     }
 
-    public void quary(Object object) {
+    public Cursor queryById(Class c, long id) {
+        boolean isExit = c.isAnnotationPresent(Table.class);
+        if (!isExit) {
+            return null;
+        }
+        Table table = (Table) c.getAnnotation(Table.class);
+        String tableName = table.value().toUpperCase();
+        if (database == null) {
+            database = helper.getReadableDatabase();
+        }
+        return database.query(tableName, null, "id=?", new String[]{String.valueOf(id)}, null, null, null);
     }
 
     public void update(Object object) {
+        Class c= object.getClass();
+        boolean isExit = c.isAnnotationPresent(Table.class);
+        if (!isExit) {
+            return;
+        }
+        ContentValues values = new ContentValues();
+        if (database == null) {
+            database = helper.getReadableDatabase();
+        }
+        Table table = (Table) c.getAnnotation(c);
+        String tableName = table.value().toUpperCase();
+
+
+
+
+//        database.update(tableName,values,)
+    }
+
+    public void delete(Class c) {
+
     }
 }
