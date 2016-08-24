@@ -31,19 +31,19 @@
         android:id="@+id/query"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="查询"
+        android:text="查询All"
         android:textSize="18sp"/>
     <Button
         android:id="@+id/update"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="更新"
+        android:text="更新ById"
         android:textSize="18sp"/>
     <Button
         android:id="@+id/delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="删除"
+        android:text="删除ById"
         android:textSize="18sp"/>
 
     <TextView

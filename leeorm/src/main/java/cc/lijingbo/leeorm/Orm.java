@@ -33,7 +33,7 @@ public class Orm {
 
     private static Orm INSTANCE = null;
 
-    public static Orm getINSTANCE(){
+    public static Orm getINSTANCE() {
         if (INSTANCE == null) {
             synchronized (Orm.class) {
                 if (INSTANCE == null) {
@@ -55,7 +55,7 @@ public class Orm {
         return INSTANCE;
     }
 
-    private Orm(){
+    private Orm() {
         helper = new ORMSQLiteOpenHelper(this.context, this.dbName, null, this.dbVersion);
     }
 
@@ -126,7 +126,7 @@ public class Orm {
                 continue;
             }
             Column column = field.getAnnotation(Column.class);
-            String columnName = column.value();
+            String annotationName = column.value();
             String fieldName = field.getName();
             StringBuffer fieldNameSb = new StringBuffer();
             if (fieldName.startsWith("is")) {
@@ -148,11 +148,11 @@ public class Orm {
                 e.printStackTrace();
             }
             if (fieldValue instanceof String && (String) fieldValue != null) {
-                values.put(columnName, (String) fieldValue);
+                values.put(annotationName, (String) fieldValue);
             } else if (fieldValue instanceof Integer && (Integer) fieldValue != 0) {
-                values.put(columnName, (Integer) fieldValue);
+                values.put(annotationName, (Integer) fieldValue);
             } else if (fieldValue instanceof Boolean) {
-                values.put(columnName, (Boolean) fieldValue);
+                values.put(annotationName, (Boolean) fieldValue);
             }
         }
         return database.insert(tableName, null, values);
@@ -184,26 +184,61 @@ public class Orm {
         return database.query(tableName, null, "id=?", new String[]{String.valueOf(id)}, null, null, null);
     }
 
-    public void update(Object object) {
-        Class c= object.getClass();
+    public int updateByid(Object o, long id) throws NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException {
+        Class c = o.getClass();
         boolean isExit = c.isAnnotationPresent(Table.class);
         if (!isExit) {
-            return;
+            return -1;
         }
         ContentValues values = new ContentValues();
         if (database == null) {
             database = helper.getReadableDatabase();
         }
-        Table table = (Table) c.getAnnotation(c);
+        Table table = (Table) c.getAnnotation(Table.class);
         String tableName = table.value().toUpperCase();
 
-
-
-
-//        database.update(tableName,values,)
+        Field[] fields = c.getDeclaredFields();
+        for (Field field : fields) {
+            if (!field.isAnnotationPresent(Column.class)) {
+                continue;
+            }
+            Column column = field.getAnnotation(Column.class);
+            String annotationName = column.value();
+            String fieldName = field.getName();
+            StringBuffer methodSb = new StringBuffer();
+            if (fieldName.startsWith("is")) {
+                methodSb.append(fieldName);
+            } else {
+                methodSb.append("get").append(fieldName.substring(0, 1).toUpperCase()).append
+                        (fieldName.substring(1));
+            }
+            String methodName = methodSb.toString();
+            Method method = c.getMethod(methodName);
+            Object result = method.invoke(o);
+            if (result instanceof Integer && (Integer) result != 0) {
+                values.put(annotationName, (Integer) result);
+            } else if (result instanceof String && (String) result != null) {
+                values.put(annotationName, (String) result);
+            } else if (result instanceof Boolean) {
+                values.put(annotationName, (Boolean) result);
+            }
+        }
+        return database.update(tableName, values, "id=?", new String[]{String.valueOf(id)});
     }
 
-    public void delete(Class c) {
+    public int delete(Class c,long id) {
+        if (database == null) {
+            database = helper.getReadableDatabase();
+        }
+//        Class c = o.getClass();
+        if (!c.isAnnotationPresent(Table.class)) {
+            return -1;
+        }
+        Table table = (Table) c.getAnnotation(Table.class);
+        String tableName = table.value().toUpperCase();
+
+        return database.delete(tableName, "id=?", new String[]{String.valueOf(id)});
 
     }
 }

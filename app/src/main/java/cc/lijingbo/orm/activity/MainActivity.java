@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.socks.library.KLog;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 for (int i = 100; i < 1100; i++) {
                     s1 = new Student();
                     s1.setName("Jerome" + i);
-                    s1.setAge(18 + i);
+                    s1.setAge((int) Math.round(Math.random() * 10 + 15));
                     s1.setEmail("haha" + i + "@email.com");
                     s1.setMale(Math.round(Math.random()) == 1 ? true : false);
                     s1.setClassName("Two Class");
@@ -108,8 +109,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 Cursor cursor1 = mOrm.queryById(Student.class, id);
                 student = new Student();
-                if (cursor1!=null){
-                    while(cursor1.moveToNext()){
+                if (cursor1 != null) {
+                    while (cursor1.moveToNext()) {
                         String name = cursor1.getString(cursor1.getColumnIndex("name"));
                         if (name != null) {
                             student.setName(name);
@@ -143,10 +144,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.update:
                 Student s11 = new Student();
                 s11.setName("Jerome102");
-//                mOrm.update();
+                try {
+                    if (this.id == 0) {
+                        this.id = 102;
+                    }
+                    int idCount = mOrm.updateByid(s11, this.id);
+                    KLog.e("更新受影响的数量:" + idCount);
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
                 break;
             case R.id.delete:
-//                mOrm.delete();
+                if (id == 0) {
+                    id = 103;
+                }
+                int delete = mOrm.delete(Student.class, id);
+                KLog.e("删除受影响的数量：" + delete);
                 break;
             default:
                 break;
