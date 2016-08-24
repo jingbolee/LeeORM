@@ -17,6 +17,6 @@ public class DemoApp extends Application {
     public void onCreate() {
         super.onCreate();
         KLog.init(cc.lijingbo.orm.BuildConfig.LOG_DEBUG, "DemoApp");
-        mOrm = Orm.getInstance(this,null,0);
+        mOrm = Orm.getINSTANCE(this,null,0);
     }
 }

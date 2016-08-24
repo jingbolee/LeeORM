@@ -33,7 +33,18 @@ public class Orm {
 
     private static Orm INSTANCE = null;
 
-    public static Orm getInstance(Context context, String dbName, int dbVersion) {
+    public static Orm getINSTANCE(){
+        if (INSTANCE == null) {
+            synchronized (Orm.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new Orm();
+                }
+            }
+        }
+        return INSTANCE;
+    }
+
+    public static Orm getINSTANCE(Context context, String dbName, int dbVersion) {
         if (INSTANCE == null) {
             synchronized (Orm.class) {
                 if (INSTANCE == null) {
@@ -42,6 +53,10 @@ public class Orm {
             }
         }
         return INSTANCE;
+    }
+
+    private Orm(){
+        helper = new ORMSQLiteOpenHelper(this.context, this.dbName, null, this.dbVersion);
     }
 
 

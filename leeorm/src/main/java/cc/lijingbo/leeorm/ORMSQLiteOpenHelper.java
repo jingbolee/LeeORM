@@ -17,7 +17,6 @@ public class ORMSQLiteOpenHelper extends SQLiteOpenHelper {
     public ORMSQLiteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory
             factory, int version) {
         super(context, name, factory, version);
-        KLog.e("创建表的 sql 语句为：" + sql);
     }
 
     public void setSql(String sql) {

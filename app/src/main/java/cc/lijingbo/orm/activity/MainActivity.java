@@ -19,7 +19,7 @@ import cc.lijingbo.orm.bean.Student;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    Button create, update, add, delete, query;
+    Button create, update, queryByid, delete, query;
     TextView tv;
     Orm mOrm;
 
@@ -29,10 +29,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mOrm = Orm.getInstance(this, null, 0);
+        mOrm = Orm.getINSTANCE(this, null, 0);
         create = (Button) findViewById(R.id.create);
         update = (Button) findViewById(R.id.update);
-        add = (Button) findViewById(R.id.add);
+        queryByid = (Button) findViewById(R.id.query_by_id);
         delete = (Button) findViewById(R.id.delete);
         query = (Button) findViewById(R.id.query);
         tv = (TextView) findViewById(R.id.tv);
@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         update.setOnClickListener(this);
         delete.setOnClickListener(this);
         query.setOnClickListener(this);
+        queryByid.setOnClickListener(this);
     }
 
     @Override
@@ -97,8 +98,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         KLog.e(student.toString());
                         students.add(student);
                     }
-                    Toast.makeText(MainActivity.this,"查询完成",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "查询完成", Toast.LENGTH_SHORT).show();
                 }
+                break;
+
+            case R.id.query_by_id:
+                if (id == 0) {
+                    id = 110;
+                }
+                Cursor cursor1 = mOrm.queryById(Student.class, id);
+                student = new Student();
+                if (cursor1!=null){
+                    while(cursor1.moveToNext()){
+                        String name = cursor1.getString(cursor1.getColumnIndex("name"));
+                        if (name != null) {
+                            student.setName(name);
+                        }
+                        int age = cursor1.getInt(cursor1.getColumnIndex("age"));
+                        if (age != 0) {
+                            student.setAge(age);
+                        }
+                        String className = cursor1.getString(cursor1.getColumnIndex("class_name"));
+                        if (className != null) {
+                            student.setClassName(className);
+                        }
+                        int isMale = cursor1.getInt(cursor1.getColumnIndex("is_male"));
+                        if (isMale == 1) {
+                            student.setMale(true);
+                        } else {
+                            student.setMale(false);
+                        }
+                        int phoneNumber = cursor1.getInt(cursor1.getColumnIndex("phone_number"));
+                        if (phoneNumber != 0) {
+                            student.setPhoneNumber(phoneNumber);
+                        }
+                        String email = cursor1.getString(cursor1.getColumnIndex("email"));
+                        if (email != null) {
+                            student.setEmail(email);
+                        }
+                    }
+                }
+                KLog.e(student.toString());
                 break;
             case R.id.update:
                 Student s11 = new Student();

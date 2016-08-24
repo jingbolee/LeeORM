@@ -22,10 +22,10 @@
         android:text="创建"
         android:textSize="18sp"/>
     <Button
-        android:id="@+id/add"
+        android:id="@+id/query_by_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="增加"
+        android:text="查询ById"
         android:textSize="18sp"/>
     <Button
         android:id="@+id/query"
